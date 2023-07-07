@@ -1,19 +1,12 @@
 namespace SpriteKind {
     export const UI = SpriteKind.create()
-    //  GH1
-    export const bomb = SpriteKind.create()
 }
 
-//  end GH1
 //  variables
 let projectile_speed = 120
 let knockback_force = 4
 let wave_number = 0
 let enemy_count = 0
-//  GH1
-let has_bomb = true
-let throw_speed = 60
-//  end GH1
 //  sprites
 let me = Render.getRenderSpriteVariable()
 Render.moveWithController(4, 3)
@@ -22,9 +15,6 @@ crosshair.setFlag(SpriteFlag.RelativeToCamera, true)
 let warning_sprite = sprites.create(assets.image`warning`, SpriteKind.UI)
 warning_sprite.setFlag(SpriteFlag.RelativeToCamera, true)
 animation.runImageAnimation(warning_sprite, assets.animation`warning animation`, 600, true)
-//  GH1
-let bomb = sprites.create(assets.image`empty`, SpriteKind.bomb)
-//  end GH1
 //  text sprite
 let enemy_counter = textsprite.create("", 1, 3)
 update_enemy_counter()
@@ -41,35 +31,6 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function fire() {
     let projectile = sprites.createProjectileFromSprite(assets.image`projectile`, me, dir_x * projectile_speed, dir_y * projectile_speed)
     Render.setSpriteAttribute(projectile, RCSpriteAttribute.ZOffset, randint(-3, 0))
 })
-//  GH1
-controller.B.onEvent(ControllerButtonEvent.Pressed, function throw_bomb() {
-    let dir_x: number;
-    let dir_y: number;
-    
-    if (has_bomb) {
-        has_bomb = false
-        dir_x = Render.getAttribute(Render.attribute.dirX)
-        dir_y = Render.getAttribute(Render.attribute.dirY)
-        bomb.setPosition(me.x, me.y)
-        bomb.setImage(assets.image`bomb`)
-        bomb.setVelocity(dir_x * throw_speed, dir_y * throw_speed)
-        Render.jumpWithHeightAndDuration(bomb, 5, 750)
-        timer.after(750, function detonate_bomb() {
-            let nearby_enemies: Sprite[];
-            
-            animation.runImageAnimation(bomb, assets.animation`explosion`, 100, false)
-            nearby_enemies = spriteutils.getSpritesWithin(SpriteKind.Enemy, 60, bomb)
-            for (let ghost of nearby_enemies) {
-                ghost.destroy()
-            }
-            pause(400)
-            bomb.setImage(assets.image`empty`)
-            has_bomb = true
-        })
-    }
-    
-})
-//  end GH1
 function update_enemy_counter() {
     enemy_counter.setText("Left in wave:" + enemy_count)
 }
