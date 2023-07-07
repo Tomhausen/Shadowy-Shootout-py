@@ -1,12 +1,19 @@
 @namespace
 class SpriteKind:
     UI = SpriteKind.create()
+    # GH1
+    bomb = SpriteKind.create()
+    # end GH1
 
 # variables
 projectile_speed = 120
 knockback_force = 4
 wave_number = 0
 enemy_count = 0
+# GH1
+has_bomb = True
+throw_speed = 60
+# end GH1
 
 # sprites
 me = Render.get_render_sprite_variable()
@@ -16,6 +23,9 @@ crosshair.set_flag(SpriteFlag.RELATIVE_TO_CAMERA, True)
 warning_sprite = sprites.create(assets.image("warning"), SpriteKind.UI)
 warning_sprite.set_flag(SpriteFlag.RELATIVE_TO_CAMERA, True)
 animation.run_image_animation(warning_sprite, assets.animation("warning animation"), 600, True)
+# GH1
+bomb = sprites.create(assets.image("empty"), SpriteKind.bomb)
+# end GH1
 
 # text sprite
 enemy_counter = textsprite.create("", 1, 3)
@@ -37,9 +47,34 @@ def fire():
         me,
         dir_x * projectile_speed,
         dir_y * projectile_speed
-    )        
+    )
     Render.set_sprite_attribute(projectile, RCSpriteAttribute.ZOFFSET, randint(-3, 0))
-controller.A.on_event(ControllerButtonEvent.PRESSED, fire) 
+controller.A.on_event(ControllerButtonEvent.PRESSED, fire)
+
+# GH1
+def throw_bomb():
+    global has_bomb
+    if has_bomb:
+        has_bomb = False
+        dir_x = Render.get_attribute(Render.attribute.DIR_X)
+        dir_y = Render.get_attribute(Render.attribute.DIR_Y)
+        bomb.set_position(me.x, me.y)
+        bomb.set_image(assets.image("bomb"))
+        bomb.set_velocity(dir_x * throw_speed, dir_y * throw_speed)
+        Render.jump_with_height_and_duration(bomb, 5, 750)
+        timer.after(750, detonate_bomb)
+controller.B.on_event(ControllerButtonEvent.PRESSED, throw_bomb)
+
+def detonate_bomb():
+    global has_bomb
+    animation.run_image_animation(bomb, assets.animation("explosion"), 100, False)
+    nearby_enemies = spriteutils.get_sprites_within(SpriteKind.enemy, 60, bomb)
+    for ghost in nearby_enemies:
+        ghost.destroy()
+    pause(400)
+    bomb.set_image(assets.image("empty"))
+    has_bomb = True
+# end GH1
 
 def update_enemy_counter():
     enemy_counter.set_text("Left in wave:" + enemy_count)
