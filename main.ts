@@ -111,7 +111,7 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function caught(me: Sprit
 function open_door(sprite: Sprite, door_entry: tiles.Location) {
     let adjacent_tiles = tilesAdvanced.getAdjacentTiles(door_entry, 2)
     for (let tile of adjacent_tiles) {
-        if (tile.getImage() == assets.tile`door`) {
+        if (tiles.tileAtLocationEquals(tile, assets.tile`door`)) {
             tiles.setWallAt(tile, false)
             timer.after(500, close_doors)
         }

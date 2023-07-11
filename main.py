@@ -115,7 +115,7 @@ def land():
 def open_door(sprite, door_entry):
     adjacent_tiles = tilesAdvanced.get_adjacent_tiles(door_entry, 2)
     for tile in adjacent_tiles:
-        if tile.get_image() == assets.tile("door"):
+        if tiles.tile_at_location_equals(tile, assets.tile("door")):
             tiles.set_wall_at(tile, False)
             timer.after(500, close_doors)
 scene.on_overlap_tile(SpriteKind.player, assets.tile("door entry"), open_door)
