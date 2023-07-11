@@ -16,6 +16,18 @@
         "tilemapTile": true,
         "displayName": "player spawn"
     },
+    "tile3": {
+        "data": "hwQQABAAAAAOAAAAAAAA4OAAAAAAAAAOAA4AAAAA4AAA4AAAAAAOAAAADgAA4AAAAADgAAAOAAAAAAAO4AAAAAAAAOAOAAAAAAAA4A4AAAAAAAAO4AAAAAAA4AAADgAAAAAOAADgAAAA4AAAAAAOAAAOAAAAAOAA4AAAAAAAAA4OAAAAAAAA4A==",
+        "mimeType": "image/x-mkcd-f4",
+        "tilemapTile": true,
+        "displayName": "door entry"
+    },
+    "tile4": {
+        "data": "hwQQABAAAADMzMzMzMzMrLvdvN3d293Nu9283d3b3c273czMzMzMzLvdvEu7tLvLu928u+67u8u73by7RUW+y7vdvFtbROTLu928W1vv5Mu73by7RUW+y7vdvLvuu7vLu928S7u0u8u73czMzMzMzLvdvN3d293Nu9283d3b3c3MzMzMzMzMrA==",
+        "mimeType": "image/x-mkcd-f4",
+        "tilemapTile": true,
+        "displayName": "door"
+    },
     "level1": {
         "id": "level1",
         "mimeType": "application/mkcd-tilemap",

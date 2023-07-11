@@ -1,19 +1,15 @@
 namespace SpriteKind {
     export const UI = SpriteKind.create()
-    //  GH1
     export const bomb = SpriteKind.create()
 }
 
-//  end GH1
 //  variables
 let projectile_speed = 120
 let knockback_force = 4
 let wave_number = 0
 let enemy_count = 0
-//  GH1
 let has_bomb = true
 let throw_speed = 60
-//  end GH1
 //  sprites
 let me = Render.getRenderSpriteVariable()
 Render.moveWithController(4, 3)
@@ -22,9 +18,7 @@ crosshair.setFlag(SpriteFlag.RelativeToCamera, true)
 let warning_sprite = sprites.create(assets.image`warning`, SpriteKind.UI)
 warning_sprite.setFlag(SpriteFlag.RelativeToCamera, true)
 animation.runImageAnimation(warning_sprite, assets.animation`warning animation`, 600, true)
-//  GH1
 let bomb = sprites.create(assets.image`empty`, SpriteKind.bomb)
-//  end GH1
 //  text sprite
 let enemy_counter = textsprite.create("", 1, 3)
 update_enemy_counter()
@@ -41,7 +35,6 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function fire() {
     let projectile = sprites.createProjectileFromSprite(assets.image`projectile`, me, dir_x * projectile_speed, dir_y * projectile_speed)
     Render.setSpriteAttribute(projectile, RCSpriteAttribute.ZOffset, randint(-3, 0))
 })
-//  GH1
 controller.B.onEvent(ControllerButtonEvent.Pressed, function throw_bomb() {
     let dir_x: number;
     let dir_y: number;
@@ -61,6 +54,9 @@ controller.B.onEvent(ControllerButtonEvent.Pressed, function throw_bomb() {
             nearby_enemies = spriteutils.getSpritesWithin(SpriteKind.Enemy, 60, bomb)
             for (let ghost of nearby_enemies) {
                 ghost.destroy()
+                enemy_count -= 1
+                update_enemy_counter()
+                info.changeScoreBy(100)
             }
             pause(400)
             bomb.setImage(assets.image`empty`)
@@ -69,7 +65,6 @@ controller.B.onEvent(ControllerButtonEvent.Pressed, function throw_bomb() {
     }
     
 })
-//  end GH1
 function update_enemy_counter() {
     enemy_counter.setText("Left in wave:" + enemy_count)
 }
@@ -87,7 +82,7 @@ function spawn_wave() {
 
 function spawn_enemy() {
     let ghost = sprites.create(assets.image`ghost`, SpriteKind.Enemy)
-    while (spriteutils.distanceBetween(me, ghost) < 300) {
+    while (spriteutils.distanceBetween(me, ghost) < 250) {
         tiles.placeOnRandomTile(ghost, assets.tile`enemy spawn`)
     }
     tilesAdvanced.followUsingPathfinding(ghost, me, randint(10, 60))
@@ -113,6 +108,28 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function caught(me: Sprit
     enemy.destroy()
     spawn_enemy()
 })
+function open_door(sprite: Sprite, door_entry: tiles.Location) {
+    let adjacent_tiles = tilesAdvanced.getAdjacentTiles(door_entry, 2)
+    for (let tile of adjacent_tiles) {
+        if (tile.getImage() == assets.tile`door`) {
+            tiles.setWallAt(tile, false)
+            timer.after(500, close_doors)
+        }
+        
+    }
+}
+
+scene.onOverlapTile(SpriteKind.Player, assets.tile`door entry`, open_door)
+function close_doors() {
+    if (tiles.tileAtLocationEquals(me.tilemapLocation(), assets.tile`door`)) {
+        timer.after(500, close_doors)
+    } else {
+        tilesAdvanced.setWallOnTilesOfType(assets.tile`door`, true)
+    }
+    
+}
+
+scene.onOverlapTile(SpriteKind.Player, assets.tile`door entry`, open_door)
 function check_danger() {
     let nearby_enemies = spriteutils.getSpritesWithin(SpriteKind.Enemy, 80, me)
     if (nearby_enemies.length > 0) {

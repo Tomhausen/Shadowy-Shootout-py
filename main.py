@@ -1,19 +1,15 @@
 @namespace
 class SpriteKind:
     UI = SpriteKind.create()
-    # GH1
     bomb = SpriteKind.create()
-    # end GH1
 
 # variables
 projectile_speed = 120
 knockback_force = 4
 wave_number = 0
 enemy_count = 0
-# GH1
 has_bomb = True
 throw_speed = 60
-# end GH1
 
 # sprites
 me = Render.get_render_sprite_variable()
@@ -23,9 +19,7 @@ crosshair.set_flag(SpriteFlag.RELATIVE_TO_CAMERA, True)
 warning_sprite = sprites.create(assets.image("warning"), SpriteKind.UI)
 warning_sprite.set_flag(SpriteFlag.RELATIVE_TO_CAMERA, True)
 animation.run_image_animation(warning_sprite, assets.animation("warning animation"), 600, True)
-# GH1
 bomb = sprites.create(assets.image("empty"), SpriteKind.bomb)
-# end GH1
 
 # text sprite
 enemy_counter = textsprite.create("", 1, 3)
@@ -51,7 +45,6 @@ def fire():
     Render.set_sprite_attribute(projectile, RCSpriteAttribute.ZOFFSET, randint(-3, 0))
 controller.A.on_event(ControllerButtonEvent.PRESSED, fire)
 
-# GH1
 def throw_bomb():
     global has_bomb
     if has_bomb:
@@ -66,15 +59,17 @@ def throw_bomb():
 controller.B.on_event(ControllerButtonEvent.PRESSED, throw_bomb)
 
 def detonate_bomb():
-    global has_bomb
+    global has_bomb, enemy_count
     animation.run_image_animation(bomb, assets.animation("explosion"), 100, False)
     nearby_enemies = spriteutils.get_sprites_within(SpriteKind.enemy, 60, bomb)
     for ghost in nearby_enemies:
         ghost.destroy()
+        enemy_count -= 1
+        update_enemy_counter()
+        info.change_score_by(100)
     pause(400)
     bomb.set_image(assets.image("empty"))
     has_bomb = True
-# end GH1
 
 def update_enemy_counter():
     enemy_counter.set_text("Left in wave:" + enemy_count)
@@ -90,7 +85,7 @@ def spawn_wave():
 
 def spawn_enemy():
     ghost = sprites.create(assets.image("ghost"), SpriteKind.enemy)
-    while(spriteutils.distance_between(me, ghost) < 300):
+    while(spriteutils.distance_between(me, ghost) < 250):
         tiles.place_on_random_tile(ghost, assets.tile("enemy spawn"))
     tilesAdvanced.follow_using_pathfinding(ghost, me, randint(10, 60))
     
@@ -116,6 +111,21 @@ sprites.on_overlap(SpriteKind.Player, SpriteKind.enemy, caught)
 
 def land():
     me.set_velocity(0, 0)
+
+def open_door(sprite, door_entry):
+    adjacent_tiles = tilesAdvanced.get_adjacent_tiles(door_entry, 2)
+    for tile in adjacent_tiles:
+        if tile.get_image() == assets.tile("door"):
+            tiles.set_wall_at(tile, False)
+            timer.after(500, close_doors)
+scene.on_overlap_tile(SpriteKind.player, assets.tile("door entry"), open_door)
+
+def close_doors():
+    if tiles.tile_at_location_equals(me.tilemap_location(), assets.tile("door")):
+        timer.after(500, close_doors)
+    else:
+        tilesAdvanced.set_wall_on_tiles_of_type(assets.tile("door"), True)
+scene.on_overlap_tile(SpriteKind.player, assets.tile("door entry"), open_door)
 
 def check_danger():
     nearby_enemies = spriteutils.get_sprites_within(SpriteKind.enemy, 80, me)
