@@ -108,7 +108,7 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function caught(me: Sprit
     enemy.destroy()
     spawn_enemy()
 })
-function open_door(sprite: Sprite, door_entry: tiles.Location) {
+scene.onOverlapTile(SpriteKind.Player, assets.tile`door entry`, function open_door(sprite: Sprite, door_entry: tiles.Location) {
     let adjacent_tiles = tilesAdvanced.getAdjacentTiles(door_entry, 2)
     for (let tile of adjacent_tiles) {
         if (tiles.tileAtLocationEquals(tile, assets.tile`door`)) {
@@ -117,9 +117,7 @@ function open_door(sprite: Sprite, door_entry: tiles.Location) {
         }
         
     }
-}
-
-scene.onOverlapTile(SpriteKind.Player, assets.tile`door entry`, open_door)
+})
 function close_doors() {
     if (tiles.tileAtLocationEquals(me.tilemapLocation(), assets.tile`door`)) {
         timer.after(500, close_doors)
@@ -129,7 +127,6 @@ function close_doors() {
     
 }
 
-scene.onOverlapTile(SpriteKind.Player, assets.tile`door entry`, open_door)
 function check_danger() {
     let nearby_enemies = spriteutils.getSpritesWithin(SpriteKind.Enemy, 80, me)
     if (nearby_enemies.length > 0) {

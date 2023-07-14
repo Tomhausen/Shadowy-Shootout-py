@@ -125,7 +125,6 @@ def close_doors():
         timer.after(500, close_doors)
     else:
         tilesAdvanced.set_wall_on_tiles_of_type(assets.tile("door"), True)
-scene.on_overlap_tile(SpriteKind.player, assets.tile("door entry"), open_door)
 
 def check_danger():
     nearby_enemies = spriteutils.get_sprites_within(SpriteKind.enemy, 80, me)
